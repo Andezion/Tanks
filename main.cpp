@@ -11,6 +11,8 @@
 #include "bullet_types.h"
 #include "maze.h"
 
+int play_sound = 1;
+
 enum types
 {
     start,
@@ -22,7 +24,10 @@ enum types
 void handle_shooting(const std::unique_ptr<tank>& player, std::vector<bullet>& bullets,
     sf::Sound& shoot_sound, sf::Clock& shoot_cooldown)
 {
-    shoot_sound.play();
+    if(play_sound == 1)
+    {
+        shoot_sound.play();
+    }
     player->update_ammo();
     const float angle_radians = player->get_rotation_player() * (3.14159265f / 180.0f);
 
@@ -227,6 +232,15 @@ void supply_handler(std::vector<supplies> &active_supplies,
     }
 }
 
+int did_i_clicked_on_sound(const sf::Vector2f pos)
+{
+    if(pos.x >= 10 && pos.y >= 10 && pos.x <= 60 && pos.y <= 60)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Sprite &start_photo)
 {
     sf::Text text;
@@ -234,7 +248,7 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
 
     text.setCharacterSize(50);
     text.setFillColor(sf::Color::White);
-    text.setString("Hello niggers");
+    text.setString("Hello faggots");
     text.setPosition(650, 200);
 
     sf::Text pick;
@@ -245,11 +259,34 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
     pick.setString("Pick tank(1, 2, 3)");
     pick.setPosition(700, 300);
 
+    sf::Texture off_sound_texture;
+    sf::Sprite off_sound_sprite;
+    off_sound_texture.loadFromFile("Photo/off_sound.png");
+    off_sound_sprite.setTexture(off_sound_texture);
+    off_sound_sprite.setScale(0.1f, 0.1f);
+    off_sound_sprite.setPosition(10.f, 10.f);
+
+    sf::Texture on_sound_texture;
+    sf::Sprite on_sound_sprite;
+    on_sound_texture.loadFromFile("Photo/on_sound.png");
+    on_sound_sprite.setTexture(on_sound_texture);
+    on_sound_sprite.setScale(0.05f, 0.05f);
+    on_sound_sprite.setPosition(10.f, 10.f);
+
     window.clear();
 
     window.draw(start_photo);
     window.draw(text);
     window.draw(pick);
+
+    if(play_sound == 1)
+    {
+        window.draw(on_sound_sprite);
+    }
+    else
+    {
+        window.draw(off_sound_sprite);
+    }
 
     window.display();
 }
@@ -326,6 +363,20 @@ void start_screen_handler(sf::RenderWindow& window, std::unique_ptr<tank>& playe
         {
             player = std::make_unique<tank_big>(static_cast<float>(x_player) * 100, static_cast<float>(y_player) * 100, 0);
             selected = true;
+        }
+
+        sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+        sf::Vector2f pos = window.mapPixelToCoords(pixelPos);
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && did_i_clicked_on_sound(pos))
+        {
+            if(play_sound == 0)
+            {
+                play_sound = 1;
+            }
+            else
+            {
+                play_sound = 0;
+            }
         }
     }
 }
@@ -426,16 +477,29 @@ int main()
 
     main_sound.play();
     bool selected = false;
+    bool is_playing = true;
     while (window.isOpen() && !selected)
     {
         start_screen_handler(window, player, selected, x_player, y_player);
         start_screen(window, font, start_sprite);
+
+        if(play_sound == 0 && is_playing)
+        {
+            main_sound.pause();
+            is_playing = false;
+        }
+        else if(play_sound == 1 && !is_playing)
+        {
+            main_sound.play();
+            is_playing = true;
+        }
     }
 
-    std::cout << player->get_damage_of_tank() << std::endl;
-
     main_sound.stop();
-    game_sound.play();
+    if(play_sound == 1)
+    {
+        game_sound.play();
+    }
 
     while(window.isOpen())
     {
@@ -472,14 +536,20 @@ int main()
                     rotating_now = false;
                 }
 
-                handle_sounds_of_tank(moving_now, rotating_now, rotate_sound, move_sound);
+                if(play_sound == 1)
+                {
+                    handle_sounds_of_tank(moving_now, rotating_now, rotate_sound, move_sound);
+                }
             }
             else
             {
                 is_dead_player = 1;
                 if(play_music_for_player == 0)
                 {
-                    death_sound.play();
+                    if(play_sound == 1)
+                    {
+                        death_sound.play();
+                    }
                     play_music_for_player = 1;
                 }
             }
@@ -489,7 +559,10 @@ int main()
                 is_dead_enemy = 1;
                 if(play_music_for_enemy == 0)
                 {
-                    death_sound.play();
+                    if(play_sound == 1)
+                    {
+                        death_sound.play();
+                    }
                     play_music_for_enemy = 1;
                 }
             }
@@ -509,7 +582,10 @@ int main()
         {
             if(bullet.update(labyrinth))
             {
-                rico_sound.play();
+                if(play_sound == 1)
+                {
+                    rico_sound.play();
+                }
             }
 
             if (hit(bullet.getGlobalBounds(), enemy.getGlobalBounds()) && bullet.get_should_hit() == 1)
@@ -521,7 +597,10 @@ int main()
         {
             if(bullet.update(labyrinth))
             {
-                rico_sound.play();
+                if(play_sound == 1)
+                {
+                    rico_sound.play();
+                }
             }
 
             if (hit(bullet.getGlobalBounds(), player->getGlobalBounds()) && bullet.get_should_hit() == 1)
@@ -541,7 +620,11 @@ int main()
             {
                 supply.set_show();
                 player->applyPowerUp(supply.get_type(), 10);
-                supply1_sound.play();
+
+                if(play_sound == 1)
+                {
+                    supply1_sound.play();
+                }
             }
             else
             {
