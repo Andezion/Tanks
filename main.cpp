@@ -245,19 +245,44 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
 {
     sf::Text text;
     text.setFont(font);
-
     text.setCharacterSize(50);
     text.setFillColor(sf::Color::White);
-    text.setString("Hello faggots");
-    text.setPosition(650, 200);
+    text.setString("Hello tankers!");
+    text.setPosition(650, 100);
 
-    sf::Text pick;
+    sf::Text pick, info, more_info;
+
     pick.setFont(font);
-
     pick.setCharacterSize(30);
     pick.setFillColor(sf::Color::White);
-    pick.setString("Pick tank(1, 2, 3)");
-    pick.setPosition(700, 300);
+    pick.setString("To start game you should pick a tank!");
+    pick.setPosition(550, 180);
+
+    info.setFont(font);
+    info.setCharacterSize(20);
+    info.setFillColor(sf::Color::White);
+    info.setString("W - up | S - down | A - left | D - right");
+    info.setPosition(50, 550);
+
+    more_info.setFont(font);
+    more_info.setCharacterSize(20);
+    more_info.setFillColor(sf::Color::White);
+    more_info.setString("Press Esc to close game");
+    more_info.setPosition(80, 680);
+
+    sf::Texture esc_texture;
+    sf::Sprite esc_sprite;
+    esc_texture.loadFromFile("Photo/esc.png");
+    esc_sprite.setTexture(esc_texture);
+    esc_sprite.setScale(0.15f, 0.15f);
+    esc_sprite.setPosition(145, 600);
+
+    sf::Texture key_texture;
+    sf::Sprite key_sprite;
+    key_texture.loadFromFile("Photo/keys.png");
+    key_sprite.setTexture(key_texture);
+    key_sprite.setScale(0.75f, 0.75f);
+    key_sprite.setPosition(100, 400);
 
     sf::Texture off_sound_texture;
     sf::Sprite off_sound_sprite;
@@ -278,6 +303,10 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
     window.draw(start_photo);
     window.draw(text);
     window.draw(pick);
+    window.draw(key_sprite);
+    window.draw(info);
+    window.draw(esc_sprite);
+    window.draw(more_info);
 
     if(play_sound == 1)
     {
