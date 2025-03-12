@@ -250,7 +250,7 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
     text.setString("Hello tankers!");
     text.setPosition(650, 100);
 
-    sf::Text pick, info, more_info;
+    sf::Text pick, info, more_info, shoot_info;
 
     pick.setFont(font);
     pick.setCharacterSize(30);
@@ -270,12 +270,45 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
     more_info.setString("Press Esc to close game");
     more_info.setPosition(80, 680);
 
+    shoot_info.setFont(font);
+    shoot_info.setCharacterSize(20);
+    shoot_info.setFillColor(sf::Color::White);
+    shoot_info.setString("Press Space to shoot");
+    shoot_info.setPosition(95, 360);
+
     sf::Texture esc_texture;
     sf::Sprite esc_sprite;
     esc_texture.loadFromFile("Photo/esc.png");
     esc_sprite.setTexture(esc_texture);
     esc_sprite.setScale(0.15f, 0.15f);
     esc_sprite.setPosition(145, 600);
+
+    sf::Texture space_texture;
+    sf::Sprite space_sprite;
+    space_texture.loadFromFile("Photo/space.png");
+    space_sprite.setTexture(space_texture);
+    space_sprite.setScale(0.5f, 0.5f);
+    space_sprite.setPosition(125, 280);
+
+    sf::Text tank_pick1, tank_pick2, tank_pick3;
+
+    tank_pick1.setFont(font);
+    tank_pick1.setCharacterSize(30);
+    tank_pick1.setFillColor(sf::Color::White);
+    tank_pick1.setString("Press 1 - to pick fast but weak tank");
+    tank_pick1.setPosition(560, 280);
+
+    tank_pick2.setFont(font);
+    tank_pick2.setCharacterSize(30);
+    tank_pick2.setFillColor(sf::Color::White);
+    tank_pick2.setString("Press 2 - to pick medium tank");
+    tank_pick2.setPosition(590, 340);
+
+    tank_pick3.setFont(font);
+    tank_pick3.setCharacterSize(30);
+    tank_pick3.setFillColor(sf::Color::White);
+    tank_pick3.setString("Press 3 - to pick slow but strong tank");
+    tank_pick3.setPosition(550, 400);
 
     sf::Texture key_texture;
     sf::Sprite key_sprite;
@@ -307,6 +340,11 @@ void start_screen(sf::RenderWindow &window, const sf::Font &font, const sf::Spri
     window.draw(info);
     window.draw(esc_sprite);
     window.draw(more_info);
+    window.draw(space_sprite);
+    window.draw(shoot_info);
+    window.draw(tank_pick1);
+    window.draw(tank_pick2);
+    window.draw(tank_pick3);
 
     if(play_sound == 1)
     {
