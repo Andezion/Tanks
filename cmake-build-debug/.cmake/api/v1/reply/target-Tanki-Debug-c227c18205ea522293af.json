@@ -42,7 +42,7 @@
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 18,
+				"line" : 19,
 				"parent" : 0
 			},
 			{
@@ -152,7 +152,8 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				5
 			]
 		}
 	],
@@ -182,6 +183,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "supplies.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "handlers_for_game.h",
 			"sourceGroupIndex" : 1
 		}
 	],
