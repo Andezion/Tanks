@@ -11,6 +11,7 @@
 #include "bullet_types.h"
 #include "maze.h"
 #include "handlers_for_game.h"
+#include "clever_collision.h"
 
 int get_number(const int min, const int max)
 {
@@ -25,10 +26,14 @@ std::pair<int, int> get_pair(std::vector<std::pair<int, int>>& vec, std::mt19937
     const int index = dist(gen);
     return vec[index];
 }
-
 bool take_supply(const tank& player, const supplies& supply)
 {
     return player.getGlobalBounds().intersects(supply.get_global_bounds());
+}
+
+int clever_intersection(const sf::CircleShape& player, const sf::CircleShape& enemy)
+{
+    return player.getGlobalBounds().intersects(enemy.getGlobalBounds());
 }
 
 int main()
@@ -128,6 +133,9 @@ int main()
         game_sound.play();
     }
 
+    circle_for_collision for_player(player->get_position().x, player->get_position().y);
+    circle_for_collision for_enemy(enemy.get_position().x, enemy.get_position().y);
+
     while(window.isOpen())
     {
         bool moving_now = false;
@@ -144,6 +152,7 @@ int main()
             if(player->get_health() > 0)
             {
                 handle_moving(player, labyrinth, moving_now, rotating_now);
+                for_player.set_position(player->get_position().x, player->get_position().y);
 
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) &&
                     shoot_cooldown.getElapsedTime().asSeconds() >= player->get_cooldown() && player->get_ammo() > 0)
@@ -179,6 +188,12 @@ int main()
                     }
                     play_music_for_player = 1;
                 }
+            }
+
+            if(clever_intersection(for_player.get_circle(), for_enemy.get_circle()))
+            {
+                enemy.move(enemy.get_speed_of_tank(), enemy.get_rotation_player());
+                for_enemy.set_position(enemy.get_position().x, enemy.get_position().y);
             }
 
             if(enemy.get_health() == 0.0f)
@@ -288,6 +303,8 @@ int main()
 
         window.draw(text);
         window.draw(cooldown_text);
+        for_player.draw(window);
+        for_enemy.draw(window);
 
         window.display();
     }
