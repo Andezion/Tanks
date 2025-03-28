@@ -15,6 +15,7 @@ add_executable(Tanki main.cpp
         maze.h
         supplies.h
         handlers_for_game.h
-        clever_collision.h)
+        clever_collision.h
+        maze_solver.h)
 
 target_link_libraries(Tanki sfml-graphics sfml-window sfml-system sfml-audio)

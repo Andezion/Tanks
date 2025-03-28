@@ -11,6 +11,7 @@
 #include "bullet_types.h"
 #include "maze.h"
 #include "handlers_for_game.h"
+#include "maze_solver.h"
 #include "clever_collision.h"
 
 int get_number(const int min, const int max)
