@@ -5,9 +5,18 @@
 #include <queue>
 #include <vector>
 #include <map>
-#include <SFML/System/Vector2.hpp>
 
 #include "maze.h"
+
+struct Vector2Comparator
+{
+    bool operator()(const sf::Vector2f& lhs, const sf::Vector2f& rhs) const
+    {
+        if (lhs.x != rhs.x)
+            return lhs.x < rhs.x;
+        return lhs.y < rhs.y;
+    }
+};
 
 inline bool canMove(Cell labyrinth[width][height], const sf::Vector2i from, const sf::Vector2i to)
 {
@@ -24,7 +33,7 @@ inline bool canMove(Cell labyrinth[width][height], const sf::Vector2i from, cons
 inline std::vector<sf::Vector2f> findPath(Cell labyrinth[width][height], const sf::Vector2f bot, const sf::Vector2f player)
 {
     std::queue<sf::Vector2f> queue;
-    std::map<sf::Vector2f, sf::Vector2f> cameFrom;
+    std::map<sf::Vector2f, sf::Vector2f, Vector2Comparator> cameFrom;
     std::vector<sf::Vector2f> path;
 
     queue.push(bot);

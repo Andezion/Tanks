@@ -37,6 +37,38 @@ int clever_intersection(const sf::CircleShape& player, const sf::CircleShape& en
     return player.getGlobalBounds().intersects(enemy.getGlobalBounds());
 }
 
+inline void handle_enemy_movement(tank& enemy, const std::vector<sf::Vector2f>& path, size_t& current_step)
+{
+    if (path.empty() || current_step >= path.size()) return; // Если путь пуст или достигли конца — не двигаем бота
+
+    sf::Vector2f next_pos = path[current_step]; // Берем следующую позицию в пути
+    sf::Vector2f direction = next_pos - enemy.get_position();
+
+    float angle_to_target = std::atan2(direction.y, direction.x) * 180.0f / M_PI; // Угол на следующую точку
+
+    float current_rotation = enemy.get_rotation_player();
+    float rotation_speed = enemy.get_rotation_speed();
+
+    // Определяем, в какую сторону поворачивать
+    if (std::abs(angle_to_target - current_rotation) > 1.0f)
+    {
+        if ((angle_to_target - current_rotation + 360) < 180)
+            enemy.rotate(rotation_speed);
+        else
+            enemy.rotate(-rotation_speed);
+    }
+    else
+    {
+        // Если бот уже развернут в нужном направлении, движемся вперед
+        enemy.move(enemy.get_speed_of_tank(), enemy.get_rotation_player());
+
+        // Если бот приблизился к точке маршрута, переходим к следующему шагу
+        if (std::hypot(direction.x, direction.y) < 5.0f) // 5 пикселей для погрешности
+            current_step++;
+    }
+}
+
+
 int main()
 {
     Cell labyrinth[width][height];
@@ -191,11 +223,16 @@ int main()
                 }
             }
 
+
+            static std::vector<sf::Vector2f> enemy_path;
+            static size_t enemy_step = 0; // Текущий шаг на пути
             if(clever_intersection(for_player.get_circle(), for_enemy.get_circle()))
             {
-                enemy.move(enemy.get_speed_of_tank(), enemy.get_rotation_player());
-                for_enemy.set_position(enemy.get_position().x, enemy.get_position().y);
+                enemy_path = findPath(labyrinth, enemy.get_position(), player->get_position());
+                enemy_step = 0; // Начинаем путь сначала
             }
+
+            handle_enemy_movement(enemy, enemy_path, enemy_step);
 
             if(enemy.get_health() == 0.0f)
             {
