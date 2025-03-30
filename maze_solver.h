@@ -5,6 +5,7 @@
 #include <queue>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 #include "maze.h"
 
@@ -15,6 +16,14 @@ struct Vector2Comparator
         if (lhs.x != rhs.x)
             return lhs.x < rhs.x;
         return lhs.y < rhs.y;
+    }
+};
+
+struct Vector2iHash
+{
+    size_t operator()(const sf::Vector2i& v) const
+    {
+        return std::hash<int>()(v.x) ^ std::hash<int>()(v.y);
     }
 };
 
@@ -30,48 +39,81 @@ inline bool canMove(Cell labyrinth[width][height], const sf::Vector2i from, cons
     return false;
 }
 
-inline std::vector<sf::Vector2f> findPath(Cell labyrinth[width][height], const sf::Vector2f bot, const sf::Vector2f player)
+inline std::vector<sf::Vector2i> findPath(Cell labyrinth[width][height], const sf::Vector2f bot, const sf::Vector2f player)
 {
-    std::queue<sf::Vector2f> queue;
-    std::map<sf::Vector2f, sf::Vector2f, Vector2Comparator> cameFrom;
-    std::vector<sf::Vector2f> path;
+    std::cout << "Bot: " <<  bot.x << " " << bot.y << std::endl;
+    std::cout << "Player: " << player.x << " " << player.y << std::endl;
 
-    queue.push(bot);
-    cameFrom[bot] = {-1, -1};
+    std::queue<sf::Vector2i> queue;
+    std::unordered_map<sf::Vector2i, sf::Vector2i, Vector2iHash> cameFrom;
+    std::vector<sf::Vector2i> path;
 
+    if (!canMove(labyrinth, sf::Vector2i(bot), sf::Vector2i(bot)))
+    {
+        std::cout << "ERROR: Bot starts in an unwalkable cell (" << bot.x << ", " << bot.y << ")!" << std::endl;
+        return {};
+    }
+
+    queue.push(sf::Vector2i(bot));
+    cameFrom[sf::Vector2i(bot)] = {-1, -1};
+
+    int exploredCells = 0;
     while (!queue.empty())
     {
-        sf::Vector2f current = queue.front();
+        sf::Vector2i current = queue.front();
+        std::cout << "Processing: (" << current.x << ", " << current.y << ")" << std::endl;
         queue.pop();
 
         if (current.x == player.x && current.y == player.y)
         {
-            sf::Vector2f step = player;
+            auto step = static_cast<sf::Vector2i>(player);
             while (step.x != -1 && step.y != -1)
             {
                 path.push_back(step);
                 step = cameFrom[step];
+                exploredCells++;
             }
             std::ranges::reverse(path);
+            std::cout << "Final Path: ";
+            for (const auto& p : path)
+            {
+                std::cout << "(" << p.x << ", " << p.y << ") -> ";
+            }
+            std::cout << "END\n";
+            std::cout << "Total explored cells: " << exploredCells << std::endl;
             return path;
         }
 
-        std::vector<sf::Vector2f> neighbors =
+        std::vector<sf::Vector2i> neighbors =
         {
             {current.x + 1, current.y}, {current.x - 1, current.y},
             {current.x, current.y + 1}, {current.x, current.y - 1}
         };
 
-        for (sf::Vector2f next : neighbors)
+        for (sf::Vector2i next : neighbors)
         {
             if (canMove(labyrinth, sf::Vector2i(current), sf::Vector2i(next)) && !cameFrom.contains(next))
             {
+                std::cout << "Checking neighbor: (" << next.x << ", " << next.y << ") ";
+
+                if (!canMove(labyrinth, sf::Vector2i(current), sf::Vector2i(next)))
+                {
+                    std::cout << "- Blocked by canMove()!\n";
+                }
+                else if (cameFrom.contains(next))
+                {
+                    std::cout << "- Already visited\n";
+                }
+                else
+                {
+                    std::cout << "- Added to queue\n";
+                }
                 queue.push(next);
                 cameFrom[next] = current;
             }
         }
     }
-
+    std::cout << "ERROR: No path found!\n";
     return {};
 }
 

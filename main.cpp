@@ -37,12 +37,12 @@ int clever_intersection(const sf::CircleShape& player, const sf::CircleShape& en
     return player.getGlobalBounds().intersects(enemy.getGlobalBounds());
 }
 
-inline void handle_enemy_movement(tank& enemy, const std::vector<sf::Vector2f>& path, size_t& current_step)
+inline void handle_enemy_movement(tank& enemy, const std::vector<sf::Vector2i>& path, size_t& current_step)
 {
     if (path.empty() || current_step >= path.size()) return; // Если путь пуст или достигли конца — не двигаем бота
 
-    sf::Vector2f next_pos = path[current_step]; // Берем следующую позицию в пути
-    sf::Vector2f direction = next_pos - enemy.get_position();
+    sf::Vector2i next_pos = path[current_step]; // Берем следующую позицию в пути
+    sf::Vector2i direction = next_pos - static_cast<sf::Vector2i>(enemy.get_position());
 
     float angle_to_target = std::atan2(direction.y, direction.x) * 180.0f / M_PI; // Угол на следующую точку
 
@@ -224,13 +224,22 @@ int main()
             }
 
 
-            static std::vector<sf::Vector2f> enemy_path;
-            static size_t enemy_step = 0; // Текущий шаг на пути
-            if(clever_intersection(for_player.get_circle(), for_enemy.get_circle()))
-            {
-                enemy_path = findPath(labyrinth, enemy.get_position(), player->get_position());
-                enemy_step = 0; // Начинаем путь сначала
-            }
+            static std::vector<sf::Vector2i> enemy_path;
+            static size_t enemy_step = 0;
+
+            enemy_path = findPath(labyrinth, enemy.get_position(), player->get_position());
+            //std::cout << "Path size: " << enemy_path.size() << std::endl;
+
+            enemy_step = 0;
+            // if(clever_intersection(for_player.get_circle(), for_enemy.get_circle()))
+            // {
+            //     enemy_path = findPath(labyrinth, enemy.get_position(), player->get_position());
+            //     for(int i = 0; i < enemy_path.size(); i++)
+            //     {
+            //         std::cout << i << std::endl;
+            //     }
+            //     enemy_step = 0;
+            // }
 
             handle_enemy_movement(enemy, enemy_path, enemy_step);
 
