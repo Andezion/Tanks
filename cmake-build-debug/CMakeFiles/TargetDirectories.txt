@@ -1,3 +1,0 @@
-C:/Users/vdoro/CLionProjects/Tanki/cmake-build-debug/CMakeFiles/Tanki.dir
-C:/Users/vdoro/CLionProjects/Tanki/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/vdoro/CLionProjects/Tanki/cmake-build-debug/CMakeFiles/rebuild_cache.dir
